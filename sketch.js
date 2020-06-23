@@ -3,7 +3,7 @@
 
 var boids = [];
 
-var boidsNum = 110;
+var boidsNum = 50;
 
 var chunkScale = 5; // this means that there'll be 25 chunks
 
@@ -32,6 +32,7 @@ function setup() {
 
 function draw() {
 	background(0);
+	frameRate(60);
 
 	// to visualize the chunks
 
@@ -59,9 +60,13 @@ function draw() {
 			}
 
 			for (let boid of setOfBoids) {
+
 				boid.show();
 				boid.setSteerForce(setOfBoids);
 				boid.update();
+
+				boid.wallAvoidance();
+		
 			}
 
 		}

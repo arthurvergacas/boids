@@ -16,6 +16,55 @@ class Boid {
         this.totalSeparationForce = 1.42;
     }
 
+    // this will set steer force to avoid walls
+    wallAvoidance() {
+        // check if is going to hit a wall
+        let visionVector = this.velocity.copy();
+        visionVector.setMag(this.sightRadius);
+        visionVector.add(this.position);
+        stroke(0, 255, 0);
+        strokeWeight(4);
+        // essa ai e a linha de visao dele
+        line(this.position.x, this.position.y, visionVector.x, visionVector.y);
+        let lineSight = {
+            x1: this.position.x,
+            y1: this.position.y,
+            x2: visionVector.x,
+            y2: visionVector.y
+        }
+
+        let rightWall = {
+            x1: width,
+            y1: 0,
+            x2: width,
+            y2: height,
+
+            denominator: null
+        }
+
+        rightWall.denominator = (lineSight.x1 - lineSight.x2) * (rightWall.y1 - rightWall.y2) - (lineSight.y1 - lineSight.y2) * (rightWall.x1 - rightWall.x2);
+
+        if (rightWall.denominator !== 0) {
+            let t = ((lineSight.x1 - rightWall.x1) * (rightWall.y1 - rightWall.y2) - (lineSight.y1 - rightWall.y1) * (rightWall.x1 - rightWall.x2))
+                    / rightWall.denominator;
+            
+            if (0 <= t && t <= 1){
+                stroke(255, 0, 0);
+                strokeWeight(10);
+                // line(rightWall.x1, rightWall.y1, rightWall.x2, rightWall.y2);
+                point(lineSight.x1 + t * (lineSight.x2 - lineSight.x1), lineSight.y1 + t * (lineSight.y2 - lineSight.y1))
+            }
+            
+        }
+
+
+        
+
+
+
+
+    }
+
     // this will define the steering acceleration
     setSteerForce(boids) {
         this.totalAlignForce = alignSlider.value();
@@ -49,6 +98,8 @@ class Boid {
                 total++;
             }
         }
+
+
 
         let steerForce = createVector();
 
@@ -102,6 +153,9 @@ class Boid {
         this.velocity.add(this.acceleration);
         this.velocity.setMag(this.maxVelocity);
         this.position.add(this.velocity);
+
+
+        
 
         // to travel through walls
         if (this.position.x > width) {
