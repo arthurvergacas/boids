@@ -10,9 +10,9 @@ class Boid {
 
         this.sightRadius = 60;
         
-        this.totalSteerForce = 0.3;
+        this.totalSteerForce = 0.28;
         this.totalAlignForce = 0.8;
-        this.totalCohesionForce = 1.4;
+        this.totalCohesionForce = 1.5;
         this.totalSeparationForce = 1.42;
     }
 
@@ -51,7 +51,6 @@ class Boid {
 
                 let angleBetw = steerForce.angleBetween(this.velocity);
                                 
-
                 if (Math.abs(degrees(angleBetw)) >= 170 && Math.abs(degrees(angleBetw)) <= 180){
                     steerForce.rotate(radians(90) * random([1, -1]));
                     steerForce.setMag(10);
@@ -69,6 +68,42 @@ class Boid {
 
 
 
+    }
+    
+    // to avoid the mouse
+    mouseAvoidance() {
+
+        let mouse = createVector(mouseX, mouseY);
+
+        // to see the mouse obstacle
+        fill(255, 40, 40);
+        circle(mouse.x, mouse.y, this.sightRadius - 20)
+
+        let steerForce = createVector();
+
+        let distance = dist(mouse.x, mouse.y, this.position.x, this.position.y);
+
+        if (distance < this.sightRadius){
+            let ahead = p5.Vector.add(this.position, this.velocity);
+            let desiredVelocity = p5.Vector.sub(ahead, mouse);
+            desiredVelocity.setMag(40);
+
+            steerForce = p5.Vector.sub(desiredVelocity, this.velocity);
+            steerForce.div(pow(distance + 0.01, 0.05));
+
+            let angleBetw = steerForce.angleBetween(this.velocity);
+                                
+            if (Math.abs(degrees(angleBetw)) >= 170 && Math.abs(degrees(angleBetw)) <= 180){
+                steerForce.rotate(radians(90) * random([1, -1]));
+                steerForce.setMag(40);
+            }
+
+            steerForce.limit(0.3);
+
+
+        }
+
+        return steerForce;
     }
 
     // this will define the steering acceleration
@@ -125,8 +160,6 @@ class Boid {
             steerForce.add(avgSepair);
             
         }
-        let avoidWall = this.wallAvoidance();
-
 
 
         // to calculate the steer force, subtract the current velocity (this.velocity) from the
@@ -136,8 +169,14 @@ class Boid {
         // limiting the vector so the transition can be more soft
         steerForce.limit(this.totalSteerForce);
 
+        // TO AVOID WALLS
+        //let avoidWall = this.wallAvoidance();
         //steerForce.add(avoidWall);
 
+
+        // TO AVOID THE MOUSE
+        let avoidMouse = this.mouseAvoidance();
+        steerForce.add(avoidMouse);
 
         
         // set the acceleration (or force) of this boid to the desired steer force

@@ -3,7 +3,7 @@
 
 var boids = [];
 
-var boidsNum = 30;
+var boidsNum = 50;
 
 var chunkScale = 5; // this means that there'll be 25 chunks
 
